@@ -22,6 +22,7 @@ Procedure Sistema is
 	Task ProcesoB;
 	
 	Task Body Central is
+		menos_tres_min: boolean := true;
 	Begin
 		accept SenalA(SA);
 		
@@ -30,11 +31,13 @@ Procedure Sistema is
 				accept SenalA(SA);
 			OR
 				accept SenalB(SB);
-					SELECT
-						accept SenalB(SB);
-					OR DELAY 180.0
-						NULL;
-					END SELECT;
+					while (menos_tres_min) loop
+							SELECT
+								accept SenalB(SB);
+							OR DELAY 180
+								menos_tres_min := false;
+							END SELECT;
+					end loop;
 			END SELECT;
 		end loop
 	End Central;

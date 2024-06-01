@@ -23,7 +23,7 @@ Inciso a)
 		arrV = array (1..N) of Vehiculo;
 		
 		Task Body vehiculo is
-			soyEsto = string := obtenerTipo;
+			soyEsto : string := obtenerTipo;
 		Begin
 			if (soyEsto = "Auto") then
 				Coordinador.PasarAuto();
@@ -37,7 +37,7 @@ Inciso a)
 		End vehiculo
 		
 		Task Body Coordinador is
-			total = integer := 0;
+			total : integer := 0;
 		Begin
 			loop
 				SELECT
@@ -86,7 +86,7 @@ Inciso B)
 		arrV = array (1..N) of Vehiculo;
 		
 		Task Body vehiculo is
-			soyEsto = string := obtenerTipo;
+			soyEsto : string := obtenerTipo;
 		Begin
 			if (soyEsto = "Auto") then
 				Coordinador.PasarAuto();
@@ -100,7 +100,7 @@ Inciso B)
 		End vehiculo
 		
 		Task Body Coordinador is
-			total = integer := 0;
+			total : integer := 0;
 		Begin
 			loop
 				SELECT

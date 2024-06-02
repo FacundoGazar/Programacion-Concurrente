@@ -7,7 +7,6 @@ que está todo bien, el usuario se retira. Cuando un usuario envía un pedido es
 2 minutos a que sea recibido por el servidor, pasado ese tiempo espera un minuto y vuelve a
 intentarlo (usando el mismo documento).
 
-```Pascal
 Procedure Sistema is
 
 	Task Servidor is
@@ -51,4 +50,3 @@ Procedure Sistema is
 Begin
 	NULL;
 End Sistema;
-```

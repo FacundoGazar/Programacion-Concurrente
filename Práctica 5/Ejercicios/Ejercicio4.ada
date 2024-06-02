@@ -13,7 +13,7 @@ El médico atiende los pedidos dándole prioridad a los enfermos que llegan para
 Cuando atiende un pedido, recibe la solicitud y la procesa durante un cierto tiempo. Cuando
 está libre aprovecha a procesar las notas dejadas por las enfermeras.
 
-```Pascal
+
 Procedure Clinica is
 
 	Task Medico is
@@ -104,4 +104,3 @@ Procedure Clinica is
 Begin
 	NULL;
 End Clinica;
-```

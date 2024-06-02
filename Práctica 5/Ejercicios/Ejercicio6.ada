@@ -8,7 +8,6 @@ finalizar cada persona debe conocer el grupo que más dinero junto. Nota: maximi
 concurrencia. Suponga que para simular la búsqueda de una moneda por parte de una
 persona existe una función Moneda() que retorna el valor de la moneda encontrada.
 
-```Pascal
 Procedure Playa
 	
 	Task Type Persona;
@@ -93,4 +92,3 @@ Begin
 		arrAdmin(i).QuienSoy(i);
 	end loop;
 End Playa;
-```

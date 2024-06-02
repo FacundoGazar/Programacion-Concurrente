@@ -9,7 +9,7 @@ proceso 1 será considerada vieja (se deshecha) si en 2 minutos no fue recibida.
 señal del proceso 2 no puede ser recibida inmediatamente, entonces espera 1 minuto y
 vuelve a mandarla (no se deshecha).
 
-```Pascal
+
 Procedure Sistema is
 
 	Task Central is 
@@ -75,4 +75,3 @@ Procedure Sistema is
 Begin
 	null;
 END Sistema;
-```

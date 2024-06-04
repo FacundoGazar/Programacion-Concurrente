@@ -15,11 +15,16 @@ Procedure Sistema is
 	Task Central is 
 		Entry SenalA(SA: IN integer);
 		Entry SenalB(SB: IN integer);
+		Entry OutOfTime();
 	End Central;
 	
 	Task ProcesoA;
 	
 	Task ProcesoB;
+	
+	Task Contador is
+		Entry IniciarTimer();
+	End Contador;
 	
 	Task Body Central is
 		menos_tres_min: boolean := true;
@@ -31,11 +36,15 @@ Procedure Sistema is
 				accept SenalA(SA);
 			OR
 				accept SenalB(SB);
+					menos_tres_min := true;
+					Contador.IniciarTimer();
 					while (menos_tres_min) loop
 							SELECT
-								accept SenalB(SB);
-							OR DELAY 180
-								menos_tres_min := false;
+								when (OutOfTime´count = 0) =>
+									accept SenalB(SB);
+							ORW
+								accept OutOfTime() do
+									menos_tres_min := false;
 							END SELECT;
 					end loop;
 			END SELECT;

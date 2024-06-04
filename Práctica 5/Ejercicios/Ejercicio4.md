@@ -24,6 +24,7 @@ Procedure Clinica is
 	
 	Task Escritorio is
 		Entry RecibirNota(T: IN texto);
+		Enrty NecesitoNota(T: OUT texto)
 	End Escritorio;
 	
 	Task Type Cliente;
@@ -69,7 +70,6 @@ Procedure Clinica is
 	End Enfermera;
 	
 	Task Body Medico is
-		T: texto;
 	Begin
 		loop
 			SELECT
@@ -77,27 +77,32 @@ Procedure Clinica is
 					receta := AtenderClienteYRecetarAlgo();
 				End PedidoCliente;
 			OR
-				when (PedidoCliente'count = 0) =>
+				when (PedidoCliente´count = 0) =>
 					accept PedidoEnfermera(pedido: IN OUT texto) do
 						pedido := ResolverPedido(pedido);
 					End PedidoEnfermera;
 			OR
-				when (PedidoCliente'count = 0 AND PedidoEnfermera'count = 0) =>
-					accept RevisarEscritorio(nota: IN OUT texto) do
-						nota := ResolverNota(nota);
-					End RevisarEscritorio;
+				when (PedidoCliente´count = 0 AND PedidoEnfermera´count = 0) =>
+					Escritorio.NecesitoNota(T: OUT texto) do
+						resolverNota(T);
+					End NecesitoNota;
 			END SELECT
 		end loop;
 	End Medico;
 	
 	Task Body Escritorio is
-		nota: texto;
+		nota: colaNotas;
 	Begin
 		loop
-			accept RecibirNota(T: IN texto) do
-				nota := T;
-			End RecibirNota;
-			Medico.RevisarEscritorio(nota);
+			SELECT
+				accept RecibirNota(T: IN texto) do
+					Agregar(colaNotas, T);
+				End RecibirNota;
+			OR
+				when (not Empty(colaNotas) ) =>
+					accept NecesitoNota(T: OUT texto) do
+						T := Sacar(colaNotas);
+					End NecesitoNota;
 		end loop;
 	End Escritorio;
 	

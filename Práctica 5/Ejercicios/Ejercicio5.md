@@ -21,21 +21,25 @@ Procedure Sistema is
 	Task Body Cliente is
 		estaMal: boolean := true;
 		respuesta: boolean;
+		modificar: boolean := false;
 		doc: texto;
 	Begin
+		doc := generarDocumento();
 		while (estaMal) loop
-			doc := generarDocumento();
+			if (modificar) then
+				doc := modificarDocumento(doc);
+				modificar := false;
+			end if;
 			SELECT
 				Servidor.Documento(doc, respuesta);
+				if (respuesta) then
+					modificar := true;
+				else
+					estaMal := false;
+				end if;
 			OR DELAY 120.0
 				DELAY 60.0
-				SELECT
-					Servidor.Documento(doc, respuesta);
-				OR ELSE
-					NULL;
-				END SELECT;
 			END SELECT;
-			estaMal := respuesta;
 		end loop;
 	End Cliente;
 	

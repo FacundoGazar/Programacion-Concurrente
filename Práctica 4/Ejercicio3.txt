@@ -1,0 +1,63 @@
+Se debe modelar el funcionamiento de una casa de comida rápida, en la cual trabajan 2 cocineros y 3 vendedores, y que debe atender a C clientes.
+ El modelado debe considerar que: 
+ - Cada cliente realiza un pedido y luego espera a que se lo entreguen.
+ - Los pedidos que hacen los clientes son tomados por cualquiera de los vendedores y se lo pasan a los cocineros para que realicen el plato.
+ - Cuando no hay pedidos para atender, los vendedores aprovechan para reponer un pack de bebidas de la heladera (tardan entre 1 y 3 minutos para hacer esto). 
+Repetidamente cada cocinero toma un pedido pendiente dejado por los vendedores, lo cocina y se lo entrega directamente al cliente correspondiente. 
+Nota: maximizar la concurrencia.
+
+chan Pedido(int);
+chan Atender[3](int);
+chan Solicitud(int);
+chan Cocina(texto);
+chan Cocinado[N](Comida);
+
+Process Coordinador {
+    texto pedido;
+    int idVend;
+    int idCli;
+
+    while (true) {
+        receive Solicitud(idVend);
+        if (empty (Pedido)) {
+            idCli = -1;
+            pedido = "vacio";
+        } else {
+            receive Pedido(pedido, idCli);
+        }
+        send Atender[idVend](pedido, idCli);
+    }
+}
+
+Process Cliente [id: 0..N-1]{
+	Comida comida;  //Invente un objeto comida asi representaba esto (no quedaba bien usar int, texto, etc).
+	texto pedido = GenerarPedido();
+	send Pedido(pedido, id);
+	receive Cocinado[id](comida);
+}
+
+Process Vendedor [id: 0..2]{
+	int idCli;
+	texto pedido;
+	while (True) {
+		send Solicitud(id);
+		receive Atender[id](pedido, idCli);
+		if (pedido != ‘vacio’){
+			send Cocina(pedido, idCli);
+		}
+		else{
+			delay (60..180);// hasta 3 minutos
+		}
+	}
+}
+
+Process Cocinero [id: 0..1]{
+	texto pedido;
+	int idCli;
+	Comida comida;  //Invente un objeto comida asi representaba esto (no quedaba bien usar int, texto, etc).
+	while (True) {
+		receive Cocina(pedido, idCli);
+		comida = cocinar(pedido);//funcion
+		send Cocinado[idCli](comida);
+	}
+}

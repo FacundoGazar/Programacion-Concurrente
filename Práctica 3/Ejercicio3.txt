@@ -1,0 +1,269 @@
+EJERCICIO 3
+
+INCISO A
+
+Process Persona[id:0..N-1]
+{
+	Documento documento
+	Fotocopia fotocopia
+	
+	Fotocopiadora.Fotocopiar();
+}
+
+Monitor Fotocopiadora{
+
+	Procedure Fotocopiar(Documento: in text, Fotocopia: out text)
+	{
+		Fotocopia = scan(Documento);
+	}
+
+}
+
+-+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+-
+
+INCISO B
+
+Process Persona[id:0..N-1]
+{
+	Documento documento
+	Fotocopia fotocopia
+	
+	Fotocopiadora.Usar();
+	Fotocopia = scan(Documento);
+	Fotocopiadora.Salir()
+}
+
+Monitor Fotocopiadora{
+	
+	cond cv
+	bool libre = true;
+	int esperando = 0;
+	
+	Procedure Usar()
+	{
+		if(!libre){
+			esperando++
+			wait(cv)
+		}
+		else{
+			libre = false
+		}
+	}
+	
+	Procedure Salir()
+	{
+		if(esperando > 0){
+			esperando--
+			signal(cv)
+		}
+		else{
+			libre = true
+		}
+	}
+
+}
+
+-+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+-
+
+INCISO C
+
+Process Persona[id:0..N-1]
+{
+	Documento documento
+	Fotocopia fotocopia
+	int edad = id.getEdad()
+	
+	Fotocopiadora.Usar(id, edad);
+	Fotocopia = scan(Documento);
+	Fotocopiadora.Salir()
+}
+
+Monitor Fotocopiadora{
+	bool libre = true
+	cond cv[N]
+	int idAux
+	int esperando = 0;
+	cola c;
+	
+	Procedure Usar(idP, edad: in int)
+	{
+		if(!libre){
+			agregar(c, idP, edad); //Agregar agrega en funcion de la edad o sea con prioridad
+			esperando++
+			wait(cv[idP]);
+		}
+		else{
+			libre = false;
+		}	
+	}
+	
+	Procedure Salir(){
+		if(esperando > 0){
+			Sacar(c, idAux);
+			esperando--;
+			signal(cv[idAux]);
+		}
+		else {
+			libre = true;
+		}
+	}
+	
+}
+
+-+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+-
+
+INCISO D
+
+Process Persona[id:0..N-1]
+{
+	Documento documento
+	Fotocopia fotocopia
+	
+	Fotocopiadora.Usar(id);
+	Fotocopia = scan(Documento);
+	Fotocopiadora.Salir()
+}
+
+Monitor Fotocopiadora{
+	int proximo = 0;
+	cond cv[N]
+	
+	Procedure(idP: in int)
+	{
+		if(idP != proximo){
+			wait(cv[idP]);
+		}
+	}
+	
+	Procedure Salir(){
+		proximo++;
+		signal(cv[proximo])
+	}
+}
+
+-+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+-
+
+INCISO E
+
+Process Persona[id:0..N-1]
+{
+	Documento documento
+	Fotocopia fotocopia
+	
+	Fotocopiadora.Usar();
+	Fotocopia = scan(Documento);
+	Fotocopiadora.Salir()
+}
+
+Process Empleado
+{
+	int i;
+	for i: 1 to N
+	{
+		Fotocopiadora.proximo();
+	}
+}
+
+Monitor Fotocopiadora(){
+	cond empleado;
+	cond persona;
+	cond fin;
+	esperando = 0;
+	
+	Procedure Usar()
+	{
+		esperando++;
+		signal(empleado);
+		wait(persona)
+	}
+	
+	Procedure Proximo()
+	{
+		if(esperando == 0)
+		{
+			wait(empleado);
+		}
+		esperando--;
+		signal(persona);
+		wait(fin);
+	}
+	
+	Procedure salir()
+	{
+		signal(fin);
+	}
+	
+}
+
+-+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+-
+
+INCISO F
+
+Process Persona[id:0..N-1]
+{
+	Documento documento
+	Fotocopia fotocopia
+	int idRecurso;
+	
+	Fotocopiadora.Usar(id, idRecurso);
+	FotocopiadoraIdRecursp = scan(Documento);
+	Fotocopiadora.Salir(idRecurso)
+}
+
+Process Empleado
+{
+	int i;
+	for i: 1 to N
+	{
+		Fotocopiadora.proximo();
+	}
+}
+
+Monitor Fotocopiadora(){
+	cond empleado;
+	cond cliente;
+	cond fin;
+	cola procesos;
+	cola recursos(M);
+	int miRecurso[N]
+	
+	Procedure Usar(id: IN int, idRecurso: OUT int)
+	{
+		Agregar(procesos, id);
+		signal(empleado);
+		wait(cliente);
+		idRecurso = miRecurso[id];
+	}
+	
+	Procedure Proximo()
+	{
+		if(empty(procesos)){
+			wait(empleado);
+		}
+		if(empty(recursos)){
+			wait(fin);
+		}
+		
+		int procesoSig = Sacar(procesos);
+		int recursoSig = Sacar(recursos);
+		miRecurso[procesoSig] = recursoSig;
+		signal(cliente);
+	}
+	
+	Procedure Salir(idRecurso: IN int)
+	{
+		Agregar(recursos, idRecurso);
+		signal(fin);
+	}
+}
+
+
+
+
+
+
+
+
+
+
+

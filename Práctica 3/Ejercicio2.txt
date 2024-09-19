@@ -1,0 +1,24 @@
+Process Lector[id:0..N]
+{
+	BD.PedirDatos();
+	//lee los datos
+	BD.Salir
+}
+
+
+Monitor BD{
+	cond cv
+	int cant: 0
+	
+	procedure PedirDatos()
+	{
+		while(cant == 5) wait(cv)
+		cant++
+	}
+	
+	procedure Salir()
+	{
+		cant--
+		signal(cv)
+	}
+}

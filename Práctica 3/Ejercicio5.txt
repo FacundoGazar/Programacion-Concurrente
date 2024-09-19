@@ -1,0 +1,157 @@
+EJERCICIO 5
+
+INCISO A
+
+Process Cliente[id:0..N-1]{
+	text lista;
+	text comprobante;
+	
+	Corralon.llegada(lista, comprobante);
+	
+}
+
+Process Empleado{
+	text lista;
+	text comprobante;
+	int j;
+	
+	for j = 0..N-1{
+		Corralon.obtenerLista(lista);
+		comprobante = comprobar(lista);
+		Corralon.entregarComprobante(comprobante);
+	}
+}
+
+Monitor Corralon{
+	text listaC;
+	text compE;
+	cond cliente;
+	cond empleado;
+	cond atencion;
+	cond datos;
+	cond fin;
+	int esperando = 0;
+	
+	procedure llegada(lista: IN text, compr OUT text){
+		signal(empleado);
+		esperando++;
+		wait(cliente);
+		listaC = lista
+		signal(datos);
+		wait(atencion);
+		compr = compE;
+		esperando--;
+		signal(fin);
+	}
+	
+	procedure obtenerLista(lista: OUT text){
+		if(esperando == 0){
+			wait(empleado);
+		}
+		signal(cliente);
+		wait(datos);
+		lista = listaC;
+	}
+	
+	procedure entregarComprobante(comp: IN text){
+		compE = comp;
+		signal(atencion);
+		wait(listo);
+	}
+	
+}
+
+--+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+--
+
+INCISO B
+
+Process Cliente[id:0..N-1]{
+	int idE
+	text lista;
+	text comprobante;
+	
+	Corralon.llegada(idE);
+	Escritorio[idE].atencion(lista, comprobante);
+}
+
+Process Empleado[id:0..E-1]{
+	text lista;
+	text comprobante;
+	int j;
+	
+	for j = 0..N-1{
+		Corralon.proximo(id);
+		Escritorio[id].obtenerLista(lista);
+		comprobante = comprobar(lista);
+		Escritorio[id].entregarComprobante(comprobante);
+	}
+}
+
+Monitor Corralon{
+	cola empladosDisp;
+	cond esperaC;
+	int cantLibres = 0;
+	int esperando = 0;
+
+	Procedure llegada(idE: OUT int){
+		if(cantLibres == 0){
+			esperando++;
+			wait(esperaC);
+		}
+		else{
+			cantLibres--;
+		}
+		idE = Sacar(empladosDisp, id);
+	}
+	
+	Procedure proximo(id: IN int){
+		Agregar(empladosDisp, id);
+		if(esperando > 0){
+			esperando--;
+			signal(esperaC);
+		}
+		else{
+			cantLibres++;
+		}
+	}
+}
+
+Monitor Escritorio[id:0..E-1]{
+	text listaC;
+	text comprE;
+	bool hayDatos = false;
+	cond datos;
+	cond atencionE;
+	
+	Procedure atencion(lista: IN text, comprobante: OUT text){
+		listaC = lista;
+		hayDatos = true;
+		signal(datos);
+		wait(atencion);
+		comprobante = comprE;
+		signal(datos);
+	}
+	
+	Procedure obtenerLista(lista: OUT text){
+		if(!hayDatos){
+			wait(datos);
+		}
+		lista = listaC;
+	}
+	
+	Procedure entregarComprobante(comprobante: IN text){
+		comprE = comprobante;
+		signal(atencionE);
+		wait(datos);
+		hayDatos = false;
+	}
+}
+
+
+
+
+
+
+
+
+

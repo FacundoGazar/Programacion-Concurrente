@@ -1,0 +1,41 @@
+Process Auto[id:0..N-1]{
+	int peso;
+	
+	Puente.pasar(peso);
+	//el auto pasa el puente
+	Puente.salir(peso);
+}
+
+Monitor Puente(){
+	cond cv;
+	cond pesoAdecuado;
+	int esperando = 0;
+	int pesoAcumulado = 0;
+	bool libre = true;
+
+	Procedure pasar(peso: IN int){
+		if(!listo){
+			esperando++;
+			wait(cv);
+		}
+		else{
+			libro = false;
+		}
+		while(pesoAcumulado + peso > 50000){
+			wait(pesoAdecuado);
+		}
+		pesoAcumulado += peso;
+		if(esperando > 0){
+			esperando--;
+			signal(cv);
+		}
+		else{
+			libre = true;
+		}
+	}
+	
+	Procedure salir(peso: IN int){
+		pesoAcumulado -= peso;
+		signal(pesoAdecuado);
+	}
+}

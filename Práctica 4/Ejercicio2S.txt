@@ -1,0 +1,40 @@
+En un laboratorio de genética veterinaria hay 3 empleados. 
+El primero de ellos continuamente prepara las muestras de ADN; cada vez que termina, se la envía al segundo empleado y vuelve a su trabajo. 
+El segundo empleado toma cada muestra de ADN preparada, arma el set de análisis que se deben realizar con ella y espera el resultado para archivarlo. 
+Por último, el tercer empleado se encarga de realizar el análisis y devolverle el resultado al segundo empleado.
+
+Process Admin{
+	cola Buffer;
+	texto muestra;	
+	do EmpUno?envio1(muestra) -> Buffer.push(muestra);
+	[] not empty(Buffer); EmpDos?solicitud()->EmpDos!envio2(Buffer.pop());
+}
+
+Process EmpUno{
+	texto muestra;
+	while (true){
+		muestra = prepararMuestra();
+		Admin!envio1(muestra);
+	}
+}
+
+Process EmpDos{
+	texto muestra, set, resultado;
+	while (true){
+		Admin!solicitud();
+		Admin?envio2(muestra);
+		set = generarSet(muestra);
+		EmpTres!envio3(set);
+		EmpTres?envio4(resultado);
+		archivar(resultado);
+	}
+}
+
+Process EmpTres{
+	texto set, resultado;
+	while (true){
+		EmpDos?envio5(set);
+		resultado = obtenerResultado(set);
+		EmpDos!envio6(resultado);
+	}
+}
